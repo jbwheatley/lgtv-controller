@@ -24,3 +24,5 @@ lazy val root = (project in file("."))
   ).settings(
     assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
   )
+
+assemblyJarName in assembly := "lgtv.jar"
