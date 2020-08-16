@@ -1,13 +1,14 @@
 package lgtv
 
-import cats.effect.Sync
+import cats.effect.IO
 
-trait InputReader[F[_]] {
-  def read: F[String]
+trait InputReader {
+  def read: IO[String]
 }
 
 object InputReader {
-  def stdIn[F[_]: Sync]: InputReader[F] = new InputReader[F] {
-    def read: F[String] = Sync[F].delay(scala.io.StdIn.readLine("input your command > "))
-  }
+  def stdIn: InputReader =
+    new InputReader {
+      def read: IO[String] = IO(scala.io.StdIn.readLine("input your command > "))
+    }
 }
