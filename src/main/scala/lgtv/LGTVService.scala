@@ -13,9 +13,11 @@ class LGTVService(input: InputReader, interpreter: CommandInterpreter)(implicit 
       case c :: cs => someArgs(c, cs)
     }
 
-  def someArgs(com: String, cs: List[String]): IO[ExitCode] =
+  def someArgs(com: String, cs: List[String]): IO[ExitCode] = {
+    val sleep = if (com == "on") 5000.millis else 100.millis
     interpreter.interpret(com) *>
-      cs.traverse_(c => timer.sleep(100.millis) *> interpreter.interpret(c)).as(ExitCode.Success)
+      cs.traverse_(c => timer.sleep(sleep) *> interpreter.interpret(c)).as(ExitCode.Success)
+  }
 
   def noArgs: IO[ExitCode] =
     for {

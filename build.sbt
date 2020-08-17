@@ -1,5 +1,3 @@
-import Dependencies._
-
 ThisBuild / scalaVersion     := "2.13.3"
 ThisBuild / version          := "0.1.0"
 ThisBuild / organization     := "com.jbwheatley"
@@ -11,9 +9,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "lgtv",
     libraryDependencies ++= Seq(
-        catsEffect,
-        typesafeConfig,
-        ficus
+      "org.typelevel" %% "cats-effect" % "2.1.4"
     )
   ).settings(
     assemblyMergeStrategy in assembly := {
