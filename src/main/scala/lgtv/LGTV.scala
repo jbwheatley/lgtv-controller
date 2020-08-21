@@ -3,7 +3,6 @@ package lgtv
 import java.net.InetSocketAddress
 
 import cats.effect.{Concurrent, ContextShift, IO, Resource}
-import cats.implicits.{catsKernelStdMonoidForList, catsSyntaxSemigroup}
 import fs2.Chunk
 import fs2.io.udp.Packet
 import fs2.io.tcp
@@ -15,15 +14,15 @@ class LGTV(
     udpSocketGroup: Resource[IO, udp.SocketGroup],
     tcpSocketGroup: Resource[IO, tcp.SocketGroup]
 )(implicit CS: ContextShift[IO], Con: Concurrent[IO]) {
-  private val magicPacket: Array[Byte] = {
-    val m = config.macAddress.split(':').toList.map("#" + _).map(Integer.decode).map(_.byteValue()).combineN(16)
-    (List.fill(6)(Byte.MaxValue) ++ m).toArray
+  private val magicPacket: Chunk[Byte] = {
+    val m = config.macAddress.split(':').map("0x" + _).map(Integer.decode).map(_.byteValue())
+    Chunk.bytes(Array.fill(6)(Byte.MaxValue) ++ Array.fill(16)(m).flatten)
   }
 
   def wake(): IO[Unit] =
     udpSocketGroup
       .flatMap(_.open[IO]())
-      .use(_.write(Packet(new InetSocketAddress(config.wolIp, 9), Chunk.bytes(magicPacket))))
+      .use(_.write(Packet(new InetSocketAddress(config.wolIp, 9), magicPacket)))
 
   def sendCommand(command: Command): IO[Unit] =
     tcpSocketGroup.flatMap(_.client(new InetSocketAddress(config.tvIp, 9761))).use { socket =>
