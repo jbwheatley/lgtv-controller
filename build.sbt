@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "lgtv",
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-io" % "2.4.0"
+      "co.fs2" %% "fs2-io" % "2.4.4"
     )
   ).settings(
     assemblyMergeStrategy in assembly := {
