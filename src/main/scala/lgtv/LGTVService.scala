@@ -23,7 +23,8 @@ class LGTVService(input: InputReader, interpreter: CommandInterpreter)(implicit 
     for {
       com <- input.read
       exit <-
-        if (com == "quit") IO(ExitCode.Success)
+        if (com == "quit")
+          IO(println("Shutting down...")).as(ExitCode.Success)
         else interpreter.interpret(com) *> IO.suspend(noArgs)
     } yield exit
 }
