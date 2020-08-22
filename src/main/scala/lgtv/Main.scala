@@ -9,9 +9,9 @@ import scala.concurrent.ExecutionContext
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     val config         = LGTVConfig()
-    val blocker        = Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
-    val udpSocketGroup = fs2.io.udp.SocketGroup[IO](blocker)
-    val tcpSocketGroup = fs2.io.tcp.SocketGroup[IO](blocker)
+    val blocker        = Blocker[IO]
+    val udpSocketGroup = blocker.flatMap(fs2.io.udp.SocketGroup[IO])
+    val tcpSocketGroup = blocker.flatMap(b => fs2.io.tcp.SocketGroup[IO](b))
     val tv             = new LGTV(new Encryption(config.keycode), config, udpSocketGroup, tcpSocketGroup)
     val interpreter    = CommandInterpreter(tv)
     val input          = InputReader.stdIn
