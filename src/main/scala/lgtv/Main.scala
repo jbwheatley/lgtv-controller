@@ -1,10 +1,6 @@
 package lgtv
 
-import java.util.concurrent.Executors
-
 import cats.effect.{Blocker, ExitCode, IO, IOApp}
-
-import scala.concurrent.ExecutionContext
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
