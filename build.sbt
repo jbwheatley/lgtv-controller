@@ -1,24 +1,23 @@
-ThisBuild / scalaVersion     := "2.13.3"
-ThisBuild / version          := "0.1.0"
-ThisBuild / organization     := "com.jbwheatley"
+ThisBuild / scalaVersion     := "2.13.5"
+ThisBuild / organization     := "com.github.jbwheatley"
 
-scalafmtConfig in Compile := file(".scalafmt.conf")
+Compile / scalafmtConfig := file(".scalafmt.conf")
 scalafmtOnCompile := true
 
 lazy val root = (project in file("."))
   .settings(
     name := "lgtv",
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-io" % "2.4.4"
+      "co.fs2" %% "fs2-io" % "3.0.2"
     )
   ).settings(
-    assemblyMergeStrategy in assembly := {
+    assembly /assemblyMergeStrategy := {
         case PathList("META-INF", _*) => MergeStrategy.discard
         case x if x.endsWith("module-info.class") => MergeStrategy.discard
-        case v => (assemblyMergeStrategy in assembly).value(v)
+        case v => (assembly /assemblyMergeStrategy).value(v)
     }
   ).settings(
-    assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+    assembly / assemblyOption := (assembly / assemblyOption).value.copy(includeScala = false)
   )
 
-assemblyJarName in assembly := "lgtv.jar"
+assembly / assemblyJarName := "lgtv.jar"
