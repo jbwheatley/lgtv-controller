@@ -1,7 +1,7 @@
 package lgtv
 
 import cats.Traverse.ops.toAllTraverseOps
-import cats.effect.{IO, Timer}
+import cats.effect.{IO, Temporal}
 import lgtv.Command.SetVolume
 import cats.syntax.applicative._
 import cats.implicits.catsStdInstancesForList
@@ -13,7 +13,7 @@ trait CommandInterpreter {
 }
 
 object CommandInterpreter {
-  def apply(tv: LGTV)(implicit timer: Timer[IO]): CommandInterpreter =
+  def apply(tv: LGTV)(implicit timer: Temporal[IO]): CommandInterpreter =
     (command: String) => {
 
       def _interpret(command: String): IO[Either[Command, List[Command]]] =
