@@ -1,15 +1,14 @@
 package lgtv
 
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 import com.comcast.ip4s.{IpLiteralSyntax, SocketAddress}
 import fs2.Chunk
-import fs2.io.net.{Datagram, DatagramSocketGroup, SocketGroup}
+import fs2.io.net.{Datagram, Network}
 
 class LGTV(
     encryption: Encryption,
     config: LGTVConfig,
-    udpSocketGroup: Resource[IO, DatagramSocketGroup[IO]],
-    tcpSocketGroup: Resource[IO, SocketGroup[IO]]
+    network: Network[IO]
 ) {
   private val magicPacket: Chunk[Byte] = {
     val m = config.macAddress.split(':').map("0x" + _).map(Integer.decode).map(_.byteValue())
@@ -17,12 +16,13 @@ class LGTV(
   }
 
   def wake(): IO[Unit] =
-    udpSocketGroup
-      .flatMap(_.openDatagramSocket())
-      .use(_.write(Datagram(SocketAddress(config.wolIp, port"9"), magicPacket)))
+    network
+      .openDatagramSocket()
+      .use(_ => IO(println(config.wolIp.toInetAddress)))
+//      .use(_.write(Datagram(SocketAddress(config.wolIp, port"9"), magicPacket)))
 
   def sendCommand(command: Command): IO[Unit] =
-    tcpSocketGroup.flatMap(_.client(SocketAddress(config.wolIp, port"9761"))).use { socket =>
+    network.client(SocketAddress(config.wolIp, port"9761")).use { socket =>
       encryption.encrypt(command).flatMap { cEnc =>
         socket.write(Chunk.array(cEnc.message))
       }
