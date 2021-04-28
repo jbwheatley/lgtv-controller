@@ -1,12 +1,13 @@
 package lgtv
 
-import cats.effect.{ExitCode, IO, Timer}
+import cats.effect.{ExitCode, IO}
 import cats.implicits.catsStdInstancesForList
 import cats.Traverse.ops.toAllTraverseOps
+import cats.effect.kernel.Temporal
 
 import scala.concurrent.duration.DurationInt
 
-class LGTVService(input: InputReader, interpreter: CommandInterpreter)(implicit timer: Timer[IO]) {
+class LGTVService(input: InputReader, interpreter: CommandInterpreter)(implicit timer: Temporal[IO]) {
   def run(args: List[String]): IO[ExitCode] =
     args match {
       case Nil     => noArgs
@@ -25,6 +26,6 @@ class LGTVService(input: InputReader, interpreter: CommandInterpreter)(implicit 
       exit <-
         if (com == "quit")
           IO(println("Shutting down...")).as(ExitCode.Success)
-        else interpreter.interpret(com) *> IO.suspend(noArgs)
+        else interpreter.interpret(com) >> IO.defer(noArgs)
     } yield exit
 }
